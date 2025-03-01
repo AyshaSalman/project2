@@ -10,5 +10,5 @@ class Product extends Model
     use HasFactory;
 
     // إضافة خاصية fillable
-    protected $fillable = ['name', 'description', 'price'];
+    protected $fillable = ['name', 'description', 'price' , 'image'];
 }

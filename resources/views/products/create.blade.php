@@ -1,21 +1,31 @@
-<!DOCTYPE html>
-<html lang="ar">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>إضافة منتج جديد</title>
-</head>
-<body>
-    <h1>إضافة منتج جديد</h1>
-    <form action="{{ route('products.store') }}" method="POST">
+@extends('layouts.app')
+
+@section('content')
+<div class="container">
+    <h2>إضافة منتج جديد</h2>
+    <form action="{{ route('products.store') }}" method="POST" enctype="multipart/form-data">
         @csrf
-        <label>اسم المنتج:</label>
-        <input type="text" name="name" required>
-        <label>الوصف:</label>
-        <textarea name="description"></textarea>
-        <label>السعر:</label>
-        <input type="number" name="price" step="0.01" required>
-        <button type="submit">إضافة</button>
+        <div class="mb-3">
+            <label class="form-label">اسم المنتج</label>
+            <input type="text" name="name" class="form-control" required>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">السعر</label>
+            <input type="number" name="price" class="form-control" required>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">الوصف</label>
+            <textarea name="description" class="form-control">{{ old('description') }}</textarea>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">صورة المنتج</label>
+            <input type="file" name="image" class="form-control">
+        </div>
+
+        <button type="submit" class="btn btn-success">إضافة</button>
     </form>
-</body>
-</html>
+</div>
+@endsection

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Product;
+use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
@@ -25,22 +26,24 @@ class ProductController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'description' => 'nullable',
             'price' => 'required|numeric',
+            'description' => 'nullable|string',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-          // إنشاء المنتج
-         Product::create([
-        'name' => $request->name,
-        'description' => $request->description,
-        'price' => $request->price,
-         ]);
+        $imagePath = null;
+        if ($request->hasFile('image')) {
+            $imagePath = $request->file('image')->store('products', 'public');
+        }
 
-         
-        return redirect()->route('products.index')
-            ->with('success', 'تمت إضافة المنتج بنجاح!');
+        Product::create([
+            'name' => $request->name,
+            'price' => $request->price,
+            'description' => $request->description,
+            'image' => $imagePath, // تأكد من إضافة مسار الصورة
+        ]);
 
-        
+        return redirect()->route('products.index')->with('success', 'تمت إضافة المنتج بنجاح!');
     }
 
     // عرض تفاصيل منتج معين
@@ -59,20 +62,42 @@ class ProductController extends Controller
     public function update(Request $request, Product $product)
     {
         $request->validate([
-            'name' => 'required',
-            'description' => 'nullable',
+            'name' => 'required|string|max:255',
             'price' => 'required|numeric',
+            'description' => 'nullable|string',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        $product->update($request->all());
+        $imagePath = $product->image; // الاحتفاظ بالصورة القديمة في حال لم يتم تغييرها
+        if ($request->hasFile('image')) {
+            // حذف الصورة القديمة إذا كانت موجودة
+            if ($product->image) {
+                Storage::disk('public')->delete($product->image);
+            }
+            // تخزين الصورة الجديدة
+            $imagePath = $request->file('image')->store('products', 'public');
+        }
 
-        return redirect()->route('products.index')
-            ->with('success', 'تم تحديث المنتج بنجاح!');
+        // تحديث بيانات المنتج
+        $product->update([
+            'name' => $request->name,
+            'price' => $request->price,
+            'description' => $request->description,
+            'image' => $imagePath, // تحديث مسار الصورة
+        ]);
+
+        return redirect()->route('products.index')->with('success', 'تم تحديث المنتج بنجاح!');
     }
 
     // حذف المنتج
     public function destroy(Product $product)
     {
+        // حذف الصورة من التخزين إذا كانت موجودة
+        if ($product->image) {
+            Storage::disk('public')->delete($product->image);
+        }
+
+        // حذف المنتج من قاعدة البيانات
         $product->delete();
 
         return redirect()->route('products.index')

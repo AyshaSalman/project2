@@ -1,27 +1,36 @@
-<!DOCTYPE html>
-<html lang="ar">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title> تعديل المنتج</title>
-</head>
-<body>
-    <form action="{{ route('products.update', $product->id) }}" method="POST">
+@extends('layouts.app')
+
+@section('content')
+<div class="container">
+    <h2>تعديل المنتج</h2>
+    <form action="{{ route('products.update', $product->id) }}" method="POST" enctype="multipart/form-data">
         @csrf
-        @method('PUT') <!-- استخدم هذا لإخبار Laravel أن هذه هي عملية التحديث -->
-        <div>
-            <label for="name">Name</label>
-            <input type="text" id="name" name="name" value="{{ $product->name }}" required>
+        @method('PUT')
+
+        <div class="mb-3">
+            <label class="form-label">اسم المنتج</label>
+            <input type="text" name="name" class="form-control" value="{{ $product->name }}" required>
         </div>
-        <div>
-            <label for="description">Description</label>
-            <textarea id="description" name="description" required>{{ $product->description }}</textarea>
+
+        <div class="mb-3">
+            <label class="form-label">السعر</label>
+            <input type="number" name="price" class="form-control" value="{{ $product->price }}" required>
         </div>
-        <div>
-            <label for="price">Price</label>
-            <input type="text" id="price" name="price" value="{{ $product->price }}" required>
+
+        <div class="mb-3">
+            <label class="form-label">الوصف</label>
+            <textarea name="description" class="form-control">{{ $product->description }}</textarea>
         </div>
-        <button type="submit">Update Product</button>
+
+        <div class="mb-3">
+            <label class="form-label">صورة المنتج</label>
+            <input type="file" name="image" class="form-control">
+            @if($product->image)
+                <img src="{{ asset('storage/' . $product->image) }}" width="100" class="mt-2">
+            @endif
+        </div>
+
+        <button type="submit" class="btn btn-warning">تعديل</button>
     </form>
-</body>
-</html>
+</div>
+@endsection
